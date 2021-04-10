@@ -20,7 +20,6 @@ const ProduceSchema = new Schema({
   },
   image: {
     type: String,
-    data: Buffer,
     // required: true,
   }
 });
@@ -47,9 +46,8 @@ const GardenSchema = new Schema({
   produce: {
     type: [Schema.Types.ObjectId]
   }, 
-  images: {
+  image: {
     type: String,
-    data: Buffer
   },
   user: {
     type: Schema.Types.ObjectId
@@ -75,7 +73,6 @@ const UserSchema = new Schema({
   },
   image: {
     type: String,
-    data: Buffer
   }
 });
 

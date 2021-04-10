@@ -1,16 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
-
+const multer = require('multer');
+const upload = multer({ dest: 'assets/' });
+const uploadImage = require('../helpers/helpers');
 const { Garden, User, Produce } = require('../models');
 const { isAuthenticated } = require('../middleware/auth');
+
 require('dotenv').config();
 
-router.put('/', isAuthenticated, async (req, res, next) => {
-    // {address, name, phone, bio}
+router.put('/', isAuthenticated, upload.single('image'), async (req, res, next) => {
+    if(req.file) {
+        req.body['image'] = await uploadImage(req.file);
+    }
 
-    var address = req.body.address;
-    var url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.GOOGLE_API_KEY}`;
+    const address = req.body.address;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.GOOGLE_API_KEY}`;
 
     // Get latitude and longitude from address
     await fetch(url)
@@ -38,26 +43,26 @@ router.get('/', async (req, res, next) => {
 
     // returns distance in miles
     const distance = (lat1, lon1, lat2, lon2) => {
-        var p = Math.PI / 180;
-        var c = Math.cos;
-        var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+        const p = Math.PI / 180;
+        const c = Math.cos;
+        const a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
         return Math.abs(0.621371 * 12742 * Math.asin(Math.sqrt(a)));
     }
 
-    var miles = req.params.miles;
-    var lng = req.params.longitude;
-    var lat = req.params.latitude;
-    var ret = [];
+    const miles = req.body.miles;
+    const lng = req.body.longitude;
+    const lat = req.body.latitude;
+    let ret = [];
 
-    Garden.find({}).toArray((err, result) => {
-        for (let i = 0; i < result.size(); i++) {
-            if (distance(lat, lng, result[i].latitude, result[i].longitude) <= miles) {
-                ret.push(result[i]);
-            }
+    // Lat Long
+    (await Garden.find({})).forEach((garden) => {
+        console.log(distance(lat, lng, garden.latitude, garden.longitude));
+        if(distance(lat, lng, garden.latitude, garden.longitude) <= miles) {
+            console.log(garden.address);
+            ret.push({latitude:garden.latitude, longitude:garden.longitude});      
         }
-    }).catch((err) => {
-        next(err);
     });
+
     res.status(200).json({ ret });
 });
 
@@ -95,7 +100,11 @@ router.delete('/:id', isAuthenticated, async (req, res, next) => {
 });
 
 // add produce to a garden
-router.put('/produce', isAuthenticated, async (req, res, next) => {
+router.put('/produce', isAuthenticated, upload.single('image'), async (req, res, next) => {
+    if(req.file) {
+        req.body['image'] = await uploadImage(req.file);
+    }
+
     // Create produce object
     new Produce(req.body).save().then((produce) => {
         Garden.findById(req.body.garden).then((garden) => {

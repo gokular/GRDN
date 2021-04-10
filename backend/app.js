@@ -21,7 +21,6 @@ const app = express();
 // Middleware
 app.use(morgan('combined'));
 app.use(cors({ methods: ['GET', 'POST', 'PUT', 'DELETE'] }));
-app.use(express.static(path.join(__dirname, 'build')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

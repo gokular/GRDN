@@ -2,12 +2,19 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const upload = multer({ dest: 'assets/' });
+const uploadImage = require('../helpers/helpers');
 
 const { User } = require('../models');
 require('dotenv').config();
 
-router.put('/', async (req, res, next) => {
-    // {email, password, name, image}
+router.put('/', upload.single('image'), async (req, res, next) => {
+    // upload image to gcs
+    if (req.file) {
+        req.body["image"] = await uploadImage(req.file);
+    }
+
     const user = new User(req.body);
     user.save()
         .then(() => {
@@ -27,9 +34,9 @@ router.post('/', passport.authenticate('local', { session: false }), (req, res, 
 router.get('/:id', async (req, res, next) => {
     User.findById(req.params.id).then((user) => {
         res.status(200).json({ user });
-      }).catch((err) => {
+    }).catch((err) => {
         next(err);
-      });
+    });
 });
 
 module.exports = router;
