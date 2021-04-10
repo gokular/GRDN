@@ -22,7 +22,11 @@ router.put('/', isAuthenticated, async (req, res, next) => {
 
     const garden = new Garden(req.body);
     garden.save()
-        .then(() => {
+        .then(async () => {
+            await User.findById(req.body.user).then((user) => {
+                user.gardens.push(garden._id);
+                user.save();
+            });
             res.status(200).json(garden)
         }).catch(err => {
             next(err);
@@ -51,6 +55,8 @@ router.get('/', async (req, res, next) => {
                 ret.push(result[i]);
             }
         }
+    }).catch((err) => {
+        next(err);
     });
     res.status(200).json({ ret });
 });
@@ -66,7 +72,7 @@ router.get('/:id', async (req, res, next) => {
 
 // delete garden for a given user 
 router.delete('/:id', isAuthenticated, async (req, res, next) => {
-    Garden.findByIdAndDelete(req.params.id).then((garden) => {
+    Garden.findByIdAndDelete(req.params.id).then(async (garden) => {
         // update user object
         const uid = garden.user;
         await User.findById(uid).then((user) => {
@@ -76,13 +82,20 @@ router.delete('/:id', isAuthenticated, async (req, res, next) => {
         }).catch((err) => {
             next(err);
         });
+
+        // delete produce associated with garden
+        await Produce.deleteMany({ garden: req.params.id }).catch((err) => {
+            next(err);
+        });
+
+        res.status(200).json({ garden });
     }).catch((err) => {
         next(err);
     });
 });
 
 // add produce to a garden
-router.post('/produce', isAuthenticated, async (req, res, next) => {
+router.put('/produce', isAuthenticated, async (req, res, next) => {
     // Create produce object
     new Produce(req.body).save().then((produce) => {
         Garden.findById(req.body.garden).then((garden) => {
@@ -91,12 +104,15 @@ router.post('/produce', isAuthenticated, async (req, res, next) => {
         }).catch((err) => {
             next(err);
         });
+        res.status(200).json({ produce });
+    }).catch((err) => {
+        next(err);
     });
 });
 
 // delete produce from a given garden
 router.delete('/produce/:id', isAuthenticated, async (req, res, next) => {
-    Produce.findByIdAndDelete(req.params.id).then((produce) => {
+    Produce.findByIdAndDelete(req.params.id).then(async (produce) => {
         // update garden
         const gid = produce.garden;
         await Garden.findById(gid).then((garden) => {
@@ -106,6 +122,7 @@ router.delete('/produce/:id', isAuthenticated, async (req, res, next) => {
         }).catch((err) => {
             next(err);
         });
+        res.status(200).json({ produce });
     }).catch((err) => {
         next(err);
     });

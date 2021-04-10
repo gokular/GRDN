@@ -21,7 +21,7 @@ const ProduceSchema = new Schema({
   image: {
     type: String,
     data: Buffer,
-    required: true,
+    // required: true,
   }
 });
 
