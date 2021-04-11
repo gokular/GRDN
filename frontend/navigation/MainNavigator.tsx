@@ -19,6 +19,7 @@ export default function BottomTabNavigator() {
   return (
     <Main.Navigator
       initialRouteName="Home"
+      screenOptions={{headerShown: false}}
     >
       <Main.Screen
         name="Home"
