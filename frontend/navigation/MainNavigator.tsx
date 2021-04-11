@@ -28,11 +28,11 @@ export default function BottomTabNavigator() {
   return (
     <Main.Navigator
       initialRouteName="Home"
-      screenOptions={{headerShown: false}}
+      screenOptions={{ headerShown: false }}
     >
       <Main.Screen
         name="Home"
-        component={HomeScreen}
+        component={AddProduceScreen}
       />
       <Main.Screen
         name="SignIn"
