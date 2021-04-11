@@ -22,6 +22,7 @@ function HomeScreen({ navigation }) {
     const [location, setLocation] = useState<any>(null);
     const [errorMsg, setErrorMsg] = useState<string>("");
     const [gardens, setGardens] = useState<any[]>([]);
+    const [gardenLoading, setGardenLoading] = useState<boolean>(true);
 
     useEffect(() => {
         (async () => {
@@ -33,19 +34,21 @@ function HomeScreen({ navigation }) {
 
             let location = await Location.getCurrentPositionAsync({});
             setLocation(location);
-            // setGardens([location.coords]);
+            console.log(gardens);
+            setGardens([location.coords]);
+            console.log("HERE");
         })();
-        // fetch(`localhost:8000/gardens`, {
+        // fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
         //     method: 'GET',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         longtitude: location.coords.longitude,
-        //         latitude: location.coords.latitude,
-        //         miles: '100'
-        //     })
+        //     // headers: {
+        //     //     Accept: 'application/json',
+        //     //     'Content-Type': 'application/json'
+        //     // },
+        //     // body: JSON.stringify({
+        //     //     longtitude: location.coords.longitude,
+        //     //     latitude: location.coords.latitude,
+        //     //     miles: '100'
+        //     // })
         // })
         //     .then((response) => response.json())
         //     .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
@@ -53,7 +56,8 @@ function HomeScreen({ navigation }) {
         //     })
         //     .catch((error) => {
         //         console.error(error);
-        //     });
+        //     })
+        //     .finally(() => setGardenLoading(false));
     }, []);
 
     // useEffect(() => {
@@ -102,9 +106,10 @@ function HomeScreen({ navigation }) {
                     }}
                     onRegionChange={onRegionChange}
                 >
-                    {/* {!!gardens.length && gardens.map((garden) => {
+                    {!!gardenLoading && gardens.map((garden, index) => {
                         return (
                             <Marker
+                                key={index}
                                 coordinate={{
                                     latitude: garden.latitude,
                                     longitude: garden.longitude
@@ -114,9 +119,9 @@ function HomeScreen({ navigation }) {
                                 pinColor={green}
                             />
                         );
-                    })} */}
+                    })}
 
-                    <Marker
+                    {/* <Marker
                         coordinate={{
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude
@@ -124,7 +129,7 @@ function HomeScreen({ navigation }) {
                         description="This is the user"
                         title="User"
                         pinColor={green}
-                    />
+                    /> */}
                 </MapView>
             }
         </View>

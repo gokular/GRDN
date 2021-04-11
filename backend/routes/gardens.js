@@ -38,7 +38,8 @@ router.put('/', isAuthenticated, upload.single('image'), async (req, res, next) 
         });
 });
 
-router.get('/', async (req, res, next) => {
+router.get('/g/:miles&:longitude&:latitude', async (req, res, next) => {
+    // Params
     // {radius in miles, longitude, latitude}
 
     // returns distance in miles
@@ -49,9 +50,9 @@ router.get('/', async (req, res, next) => {
         return Math.abs(0.621371 * 12742 * Math.asin(Math.sqrt(a)));
     }
 
-    const miles = req.body.miles;
-    const lng = req.body.longitude;
-    const lat = req.body.latitude;
+    const miles = req.params.miles;
+    const lng = req.params.longitude;
+    const lat = req.params.latitude;
     let ret = [];
 
     // Lat Long
@@ -59,7 +60,7 @@ router.get('/', async (req, res, next) => {
         console.log(distance(lat, lng, garden.latitude, garden.longitude));
         if(distance(lat, lng, garden.latitude, garden.longitude) <= miles) {
             console.log(garden.address);
-            ret.push({latitude:garden.latitude, longitude:garden.longitude});      
+            ret.push(garden);      
         }
     });
 
