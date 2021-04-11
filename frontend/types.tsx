@@ -15,3 +15,11 @@ export type TabOneParamList = {
 export type TabTwoParamList = {
   TabTwoScreen: undefined;
 };
+
+export type produceType = {
+  name: string,
+  garden?: string,
+  price: number,
+  image: string,
+  note?: string,
+}

@@ -20,7 +20,7 @@ const uploadImage = async (file) => {
     await storage.bucket('grdn-app').upload(path, {
         destination: originalname,
     }).catch(err => {
-        console.err(err);
+        console.log(err);
     });
 
     return `https://storage.googleapis.com/grdn-app/${originalname}`;

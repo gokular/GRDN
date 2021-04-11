@@ -9,7 +9,6 @@ const ProduceSchema = new Schema({
   },
   garden: {
     type: Schema.Types.ObjectId,
-    required: true,
   },
   price: {
     type: Number,

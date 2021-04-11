@@ -9,6 +9,9 @@ import { darkGreen, green, yellow } from "../constants/Colors"
 import { fontBold, fontRegular, fontSizeLarge } from '../providers/FontProvider';
 import UserPic from '../assets/icons/user.svg';
 import AddIcon from '../assets/icons/add.svg';
+import NavBar from '../components/NavBar';
+import { useFocusEffect } from '@react-navigation/native';
+
 // const config = require('../config');
 // import Svg, { Path } from 'react-native-svg';
 
@@ -18,14 +21,17 @@ import AddIcon from '../assets/icons/add.svg';
 // }
 // DOWNLOAD AN EXTENSION TO MAKE AUTOMATIC INDENTS PLEASE
 
-function HomeScreen({ navigation }) {
+function HomeScreen({ navigation }: any) {
     const [location, setLocation] = useState<any>(null);
+    const [initLocation, setInitLocation] = useState<any>(null);
     const [errorMsg, setErrorMsg] = useState<string>("");
     const [gardens, setGardens] = useState<any[]>([]);
     const [gardenLoading, setGardenLoading] = useState<boolean>(false);
+    const [locationTimer, setLocationTimer] = useState<any>();
 
-    useEffect(() => {
-        (async () => {
+    useFocusEffect(React.useCallback(() => {
+
+        const locFinder = async () => {
             let { status } = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
                 setErrorMsg('Permission to access location was denied');
@@ -34,96 +40,59 @@ function HomeScreen({ navigation }) {
 
             let location = await Location.getCurrentPositionAsync({});
             setLocation(location);
-            // console.log(gardens);
-            // setGardens([location.coords]);
-            // console.log("HERE");
-        })();
-        fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
-            method: 'GET',
-            // headers: {
-            //     Accept: 'application/json',
-            //     'Content-Type': 'application/json'
-            // },
-            // body: JSON.stringify({
-            //     longtitude: location.cosords.longitude,
-            //     latitude: location.coords.latitude,
-            //     miles: '100'
-            // })
-        })
-            .then((response) => response.json())
-            .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
-                setGardens(json.ret);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-            .finally(() => setGardenLoading(true));
+            setInitLocation(location);
+        };
+
+        locFinder();
+      return () => {};
+    }, []))
+
+    useEffect(() => {
+
     }, []);
 
-    // useEffect(() => {
-    //     fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
-    //         method: 'GET',
-    //         // headers: {
-    //         //     Accept: 'application/json',
-    //         //     'Content-Type': 'application/json'
-    //         // },
-    //         // body: JSON.stringify({
-    //         //     longtitude: location.cosords.longitude,
-    //         //     latitude: location.coords.latitude,
-    //         //     miles: '100'
-    //         // })
-    //     })
-    //         .then((response) => response.json())
-    //         .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
-    //             setGardens(json.ret);
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         })
-    //         .finally(() => setGardenLoading(true));
-    // }, []);
+    useEffect(() => {
+        if (location != null) {
+            fetch(`http://088d60de8c82.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
+                method: 'GET',
+            })
+                .then((response) => response.json())
+                .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
+                    setGardens(json.ret);
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => setGardenLoading(true));
+        }
+    }, [location]);
 
-    // useEffect(() => {
-    // (async () => {
-    // await locFinder;
-    // })();
-    // }, [gardens]);
-
-    function onRegionChange(region: any): void {
-        //console.log("region change", region)
+    const distance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+        const p = Math.PI / 180;
+        const c = Math.cos;
+        const a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+        return Math.abs(0.621371 * 12742 * Math.asin(Math.sqrt(a)));
+    }
+    
+    function onRegionChange(region: any): void { 
+        if (locationTimer) clearTimeout(locationTimer)
+        setLocationTimer(setTimeout(function () {
+        let coordObj = {coords: region}
+        if(distance(location.coords.latitude, location.coords.longitude, region.latitude, region.longitude) > 100) {
+            setLocation(coordObj);
+        }
+        }, 1000))
     }
 
+    if(!initLocation) return <View/>
     return (
         <View style={styles.container}>
-            {/* <Text>
-                Home
-            </Text>
-            <Text>
-                {!!location && (location.coords.latitude + ", " + location.coords.longitude)}
-            </Text>
-            <Text>
-                {errorMsg}
-            </Text> */}
-            <View
-                style={styles.nav}
-            >
-                <View style={styles.navbar}>
-                    <Text style={styles.companyName}>GRDN</Text>
-                    <AddIcon
-                        style={styles.add}
-                        width={30} height={30}
-                        fill={yellow}
-                        onPress={() => navigation.navigate('EditGarden')}
-                    />
-                    <UserPic style={styles.profile} width={40} height={40} fill={yellow} />
-                </View>
-            </View>
-            {!!location &&
+
                 <MapView
                     style={styles.map}
-                    region={{
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
+                    initialRegion={{
+                        latitude: initLocation.coords.latitude,
+                        longitude: initLocation.coords.longitude,
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     }}
@@ -140,21 +109,31 @@ function HomeScreen({ navigation }) {
                                 title={garden.name}
                                 description={garden.bio}
                                 pinColor={green}
+                                onPress={() => navigation.navigate('Garden', {gardenProp: garden})}
                             />
                         );
                     })}
 
                     <Marker
                         coordinate={{
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude
+                            latitude: initLocation.coords.latitude,
+                            longitude: initLocation.coords.longitude
                         }}
                         description="This is the user"
                         title="User"
                         pinColor={yellow}
                     />
                 </MapView>
-            }
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0
+                    }}
+                    >
+                        <NavBar
+                        navigation={navigation}
+                        />
+                </View>
         </View>
     )
 }
@@ -168,11 +147,7 @@ const styles = StyleSheet.create({
         height: Layout.default.window.height,
     },
     nav: {
-        flexDirection: "row",
-        height: 100,
-        // position: 'absolute',
-        // zIndex: 5,
-        // padding: 20
+
     },
     companyName: {
         marginBottom: 8,
