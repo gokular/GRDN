@@ -2,6 +2,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
 import Colors from '../constants/Colors';
+import AddProduceScreen from '../screens/AddProduceScreen';
 import HomeScreen from '../screens/HomeScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 
@@ -19,10 +20,11 @@ export default function BottomTabNavigator() {
   return (
     <Main.Navigator
       initialRouteName="Home"
+      screenOptions={{ headerShown: false }}
     >
       <Main.Screen
         name="Home"
-        component={HomeScreen}
+        component={AddProduceScreen}
       />
       <Main.Screen
         name="SignIn"
