@@ -30,7 +30,24 @@ function HomeScreen({ navigation }: any) {
     const [locationTimer, setLocationTimer] = useState<any>();
 
     useFocusEffect(React.useCallback(() => {
+        if (location != null) {
+            fetch(`http://088d60de8c82.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
+                method: 'GET',
+            })
+                .then((response) => response.json())
+                .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
+                    setGardens(json.ret);
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => setGardenLoading(true));
+        }
 
+      return () => {};
+    }, []))
+
+    useEffect(() => {
         const locFinder = async () => {
             let { status } = await Location.requestPermissionsAsync();
             if (status !== 'granted') {
@@ -44,11 +61,6 @@ function HomeScreen({ navigation }: any) {
         };
 
         locFinder();
-      return () => {};
-    }, []))
-
-    useEffect(() => {
-
     }, []);
 
     useEffect(() => {
