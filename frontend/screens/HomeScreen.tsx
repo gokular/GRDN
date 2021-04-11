@@ -22,7 +22,7 @@ function HomeScreen({ navigation }) {
     const [location, setLocation] = useState<any>(null);
     const [errorMsg, setErrorMsg] = useState<string>("");
     const [gardens, setGardens] = useState<any[]>([]);
-    const [gardenLoading, setGardenLoading] = useState<boolean>(true);
+    const [gardenLoading, setGardenLoading] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -34,31 +34,54 @@ function HomeScreen({ navigation }) {
 
             let location = await Location.getCurrentPositionAsync({});
             setLocation(location);
-            console.log(gardens);
-            setGardens([location.coords]);
-            console.log("HERE");
+            // console.log(gardens);
+            // setGardens([location.coords]);
+            // console.log("HERE");
         })();
-        // fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
-        //     method: 'GET',
-        //     // headers: {
-        //     //     Accept: 'application/json',
-        //     //     'Content-Type': 'application/json'
-        //     // },
-        //     // body: JSON.stringify({
-        //     //     longtitude: location.coords.longitude,
-        //     //     latitude: location.coords.latitude,
-        //     //     miles: '100'
-        //     // })
-        // })
-        //     .then((response) => response.json())
-        //     .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
-        //         setGardens(json.ret);
-        //     })
-        //     .catch((error) => {
-        //         console.error(error);
-        //     })
-        //     .finally(() => setGardenLoading(false));
+        fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
+            method: 'GET',
+            // headers: {
+            //     Accept: 'application/json',
+            //     'Content-Type': 'application/json'
+            // },
+            // body: JSON.stringify({
+            //     longtitude: location.cosords.longitude,
+            //     latitude: location.coords.latitude,
+            //     miles: '100'
+            // })
+        })
+            .then((response) => response.json())
+            .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
+                setGardens(json.ret);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => setGardenLoading(true));
     }, []);
+
+    // useEffect(() => {
+    //     fetch(`http://4fa4e07cb538.ngrok.io/gardens/g/${100}&${location.coords.longitude}&${location.coords.latitude}`, {
+    //         method: 'GET',
+    //         // headers: {
+    //         //     Accept: 'application/json',
+    //         //     'Content-Type': 'application/json'
+    //         // },
+    //         // body: JSON.stringify({
+    //         //     longtitude: location.cosords.longitude,
+    //         //     latitude: location.coords.latitude,
+    //         //     miles: '100'
+    //         // })
+    //     })
+    //         .then((response) => response.json())
+    //         .then((json) => { // {ret: [{longitide: , latitude: }, {}, {}, ...]}
+    //             setGardens(json.ret);
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //         })
+    //         .finally(() => setGardenLoading(true));
+    // }, []);
 
     // useEffect(() => {
     // (async () => {
@@ -121,15 +144,15 @@ function HomeScreen({ navigation }) {
                         );
                     })}
 
-                    {/* <Marker
+                    <Marker
                         coordinate={{
                             latitude: location.coords.latitude,
                             longitude: location.coords.longitude
                         }}
                         description="This is the user"
                         title="User"
-                        pinColor={green}
-                    /> */}
+                        pinColor={yellow}
+                    />
                 </MapView>
             }
         </View>
