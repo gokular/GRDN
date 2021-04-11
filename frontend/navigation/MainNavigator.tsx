@@ -1,18 +1,26 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
-import Colors from '../constants/Colors';
-import AddProduceScreen from '../screens/AddProduceScreen';
+// import Colors from '../constants/Colors';
 import HomeScreen from '../screens/HomeScreen';
+import SignInScreen from '../screens/SignInScreen';
+import SignUpScreen from '../screens/SignUpScreen';
+import GardenScreen from '../screens/GardenScreen';
+import EditGardenScreen from '../screens/EditGardenScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
+import AddProduceScreen from '../screens/AddProduceScreen';
 
 export type MainParamList = {
   Home: undefined,
   SignIn: undefined,
   SignUp: undefined,
-  Garden: undefined,
+  Garden: {
+    gardenProp: any
+  },
   EditGarden: undefined,
-  AddProduce: undefined
+  AddProduce: {
+    gardenId: string
+  }
 }
 const Main = createStackNavigator<MainParamList>();
 
@@ -28,23 +36,23 @@ export default function BottomTabNavigator() {
       />
       <Main.Screen
         name="SignIn"
-        component={NotFoundScreen}
+        component={SignInScreen}
       />
       <Main.Screen
         name="SignUp"
-        component={NotFoundScreen}
+        component={SignUpScreen}
       />
       <Main.Screen
         name="Garden"
-        component={NotFoundScreen}
+        component={GardenScreen}
       />
       <Main.Screen
         name="EditGarden"
-        component={NotFoundScreen}
+        component={EditGardenScreen}
       />
       <Main.Screen
         name="AddProduce"
-        component={NotFoundScreen}
+        component={AddProduceScreen}
       />
     </Main.Navigator>
   );

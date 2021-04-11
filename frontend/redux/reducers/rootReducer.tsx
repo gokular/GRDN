@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import authReducer from './authReducer'
+import addProduceReducer from './addProduceReducer'
 
 const appReducer = combineReducers({
     auth: authReducer, // updates auth property in state
+    addProduce: addProduceReducer, // updates addProduce property in state
 })
 
 const rootReducer = (state: any, action: any) => {

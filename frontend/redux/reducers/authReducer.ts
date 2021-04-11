@@ -1,12 +1,15 @@
-
 const initState = {
-    authToken: "",
-    username: ""
+    token: "",
+    user: "",
+    id: "",
+    image: ""
 }
 
 export type authStateType = {
-    authToken?: string,
-    username?: string
+    token?: string,
+    user?: string,
+    id?: string
+    image?: string
 }
 
 const authReducer = (state: authStateType = initState, action: any) => {
@@ -14,8 +17,15 @@ const authReducer = (state: authStateType = initState, action: any) => {
         case 'SIGN_IN':
             return {
                 ...state,
-                authToken: action.authToken,
-                username: action.username
+                token: action.token,
+                user: action.user,
+                id: action.id,
+                image: action.image
+            }
+        case 'SIGN_OUT':
+            return {
+                ...state,
+                ...initState,
             }
         default:
             return state;
